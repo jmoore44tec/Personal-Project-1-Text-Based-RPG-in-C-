@@ -1,0 +1,565 @@
+//Project 2 - Text-Based RPG in CPP
+
+/* "The World v.3"
+This is a high fantasy text-based RPG made entirely in C++.
+This is a project I have been working on in my spare time.
+I may expand upon it, I may not.
+I'm still a beginner when it comes to coding but I thought 
+this would be a good way to showcase my current skill-level. */
+
+#include <iostream>
+#include <string>
+#include <cstdlib>  
+#include <ctime>
+
+using namespace std;
+
+// Character information
+struct Character {
+    string name;
+    string charClass;
+    int health;
+    int minDamage;
+    int maxDamage;
+};
+
+// Function to get a random number between min and max
+int getRandomDamage(int min, int max) {
+    return rand() % (max - min + 1) + min;
+}
+
+// Function to create an enemy based on enemy type
+Character createEnemy(int enemyType) {
+    Character enemy;
+    switch (enemyType) {
+        case 1:
+            enemy.name = "Goblin";
+            enemy.health = 25;
+            enemy.minDamage = 5;
+            enemy.maxDamage = 15;
+            break;
+        case 2:
+            enemy.name = "Troll";
+            enemy.health = 50;
+            enemy.minDamage = 10;
+            enemy.maxDamage = 20;
+            break;
+        case 3:
+            enemy.name = "Chimera";
+            enemy.health = 70;
+            enemy.minDamage = 2;
+            enemy.maxDamage = 25;
+            break;
+        case 4:
+            enemy.name = "Dire Wolf";
+            enemy.health = 10;
+            enemy.minDamage = 15;
+            enemy.maxDamage = 20;
+            break;
+        case 5:
+            enemy.name = "Slime";
+            enemy.health = 100;
+            enemy.minDamage = 1;
+            enemy.maxDamage = 5;
+            break;
+        default:
+            enemy.name = "Formless Shade";
+            enemy.health = 120;
+            enemy.minDamage = 1;
+            enemy.maxDamage = 10;
+            break;
+    }
+    return enemy;
+}
+
+// Function to create character based on user choice
+void createCharacter(Character& player, char choice) {
+    player.health = 100;  // Set default health
+
+    switch (choice) {
+        case 'M': case 'm':
+            player.charClass = "Mage";
+            player.minDamage = 2;
+            player.maxDamage = 30;
+            break;
+        case 'W': case 'w':
+            player.charClass = "Warrior";
+            player.minDamage = 10;
+            player.maxDamage = 20;
+            break;
+        case 'T': case 't':
+            player.charClass = "Thief";
+            player.minDamage = 5;
+            player.maxDamage = 25;
+            break;
+        default:
+            cout << "Invalid choice, defaulting to Wretch." << endl;
+            player.charClass = "Wretch";
+	    player.health = 50;
+            player.minDamage = 1;
+            player.maxDamage = 40;
+    }
+}
+
+// Function to print the character sheet
+void printCharacterSheet(const Character& player) {
+    cout << "Character Sheet:" << endl;
+    cout << "Name: " << player.name << endl;
+    cout << "Class: " << player.charClass << endl;
+    cout << "Health: " << player.health << endl;
+    cout << "Damage Range: " << player.minDamage << " - " << player.maxDamage << endl;
+}
+
+// Function for the fight loop
+void fightLoop(Character& player, Character& enemy) {
+    cout << "You encounter a " << enemy.name << "!" << endl;
+
+    while (player.health > 0 && enemy.health > 0) {
+        // Player's attack
+        int playerDamage = getRandomDamage(player.minDamage, player.maxDamage);
+        enemy.health -= playerDamage;
+        cout << "You attack the " << enemy.name << " for " << playerDamage << " damage!" << endl;
+        cout << "The " << enemy.name << " has " << enemy.health << " health remaining." << endl;
+
+        if (enemy.health <= 0) {
+            cout << "You have defeated the " << enemy.name << "!" << endl;
+            break;
+        }
+
+        // Enemy's attack
+        int enemyDamage = getRandomDamage(enemy.minDamage, enemy.maxDamage);
+        player.health -= enemyDamage;
+        cout << "The " << enemy.name << " attacks you for " << enemyDamage << " damage!" << endl;
+        cout << "You have " << player.health << " health remaining." << endl;
+
+        if (player.health <= 0) {
+            cout << "You have been defeated by the " << enemy.name << "..." << endl;
+            break;
+        }
+    }
+}
+
+int main() {
+    srand(static_cast<unsigned>(time(0)));  // Seed the random number generator
+
+    Character player;
+
+    cout << "Welcome to The World v.3" << endl;
+    cout << "Please Enter Your Name..." << endl;
+    cin >> player.name;
+
+    cout << "Please Choose Your Character" << endl;
+    cout << "Select (M) for Mage - Possesses a Quarterstaff with incredible magical potential\n"
+         << "Select (W) for Warrior - Possesses a Longsword, a devastating hunk of metal, made only for destruction\n"
+         << "Select (T) for Thief - Possesses a curved Falchion, quick to silence their foes" << endl;
+    char choice;
+    cin >> choice;
+
+    createCharacter(player, choice);
+    printCharacterSheet(player);
+    
+
+//Game Start
+
+    cout << "Your eyes open, as your vision clears you realize you are in the middle of a desolate village...\n"
+    "Straight ahead of you is the village center, marked by a well, and the town center, likely where the chief would reside...\n"
+    "How would you like to proceed?" << endl;
+    
+    bool inWild = false;
+    bool inWild2 = false;
+    bool inTown = true;
+    bool enemyDefeated = false;  // Track if the enemy in the town center is defeated
+    bool inForest = false;
+    bool enemyDefeatedInForest = false;
+    bool inVillage = false;
+    bool enemyDefeatedInVillage = false;
+    bool atHilltop = false;
+    bool enemyDefeatedAtHilltop = false;
+
+    while (inTown && player.health > 0) {
+        int action;
+        cout << "1: Check the well" << endl;
+        cout << "2: Check the town center building" << endl;
+        cout << "3: Leave the town" << endl;
+        cin >> action;
+
+        switch (action) {
+            case 1:
+                cout << "You peer down the well and see nothing but darkness... Looking at it is giving you a headache..." << endl;
+                break;
+            case 2:
+                if (!enemyDefeated) {
+                    Character enemy = createEnemy(1);  // Create a Goblin
+                    cout << "You examine the outside of the building. No one seems to have lived here in quite some time...\n"
+                         << "You can hear something moving inside!" << endl;
+                    fightLoop(player, enemy);
+                    if (player.health > 0) {
+                        enemyDefeated = true;  // Set the flag if the player defeats the enemy
+                    }
+                } else {
+                    cout << "The room is empty now..." << endl;
+                }
+                break;
+            case 3:
+                cout << "This town is creepy... It's time to move on" << endl;
+                cout << "You make your way down the road leading out of the ghost town" << endl;
+                inTown = false;  // Exit the town loop
+		inWild = true;
+                break;
+            default:
+                cout << "Why do anything? Why were we put here? Just to suffer...?" << endl;
+                cout << "You give up, no will to live, you fall back asleep and let the darkness embrace you..." << endl;
+                player.health = 0;
+        }
+    }
+
+    if (player.health > 0 && !inTown ) {
+        cout << "You continue your journey outside the town..." << endl;
+	bool inWild = true;
+    }
+    
+    while (player.health > 0 && inWild && !enemyDefeatedInVillage) {
+        
+
+        int journeyAction;
+        cout << "1: Explore the forest using the overgrown path" << endl;
+        cout << "2: Find a nearby village using the main road" << endl;
+        cout << "3: Rest at the lit bonfire nearby" << endl;
+        cin >> journeyAction;
+
+        switch (journeyAction) {
+            case 1:  // Forest path
+                inForest = true;
+		inWild = false;
+                cout << "You venture into the forest, the trees are tall and the atmosphere eerie..." << endl;
+                while (inForest && player.health > 0) {
+                    int forestAction;
+                    cout << "1: Go deeper into the forest" << endl;
+                    cout << "2: Search for anything useful" << endl;
+                    cout << "3: Leave the forest the way you came" << endl;
+                    cin >> forestAction;
+
+                    switch (forestAction) {
+                        case 1:
+                            cout << "Walking deeper into the forest, you lose the little bit of daylight that was left." << endl;
+                            cout << "After walking for a bit, you come to a clearing. The trees still cover the sky, but there is a wide opening." << endl;
+                            cout << "At the center you find what looks to be a shrine of some sort." << endl;
+                            cout << "There is a large obelisk-shaped stone with some sort of writing etched into it." << endl;
+                            cout << "Surrounding the stone is a wide variety of flowers, all picked and bundled, left by...someone..." << endl;
+                            break;
+                        case 2:
+                            if (!enemyDefeatedInForest) {
+                                Character enemy = createEnemy(4);  // Create a Dire Wolf
+                                cout << "You rummage through the surrounding fruit-bearing bushes, and suddenly something very big and hairy leaps out at you!" << endl;
+                                fightLoop(player, enemy);
+                                if (player.health > 0) {
+                                    enemyDefeatedInForest = true;  // Set the flag if the player defeats the enemy
+                                }
+                            } else {
+                                cout << "You search the area, but there's nothing more of interest." << endl;
+                            }
+                            break;
+                        case 3:
+                            cout << "You've had enough of the forest for one day. You retrace your steps back to the road." << endl;
+                            inForest = false;  // Exit the forest loop
+			    inWild = true;
+                            break;
+                        default:
+                            cout << "You stand in the clearing, questioning your choices in life..." << endl;
+                            cout << "You succumb to the cold, dark forest... never to be seen again..." << endl;
+                            player.health = 0;
+                    }
+                }
+                break;
+            case 2:  // Nearby village
+		inWild = false;
+                cout << "You walk down the road in search of another village. But the road seems never-ending." << endl;
+		cout << "This walk is taking a toll. The suns position has not changes, but it feels as though you've been walking for hours..." << endl;
+		cout << "You grow weary, confused..." << endl;
+		player.health = (player.health - 15);
+		cout << "You feel a stinging sensation travel up your leg..." << endl;
+		cout << "Your health is now at " << player.health << "." << endl;
+		
+		cout << "" << endl;
+		cout << "Something is very wrong. Your horizon has not changed, the sun is in the same spot that it has occupied for hours now..." << endl;
+		cout << "You turn around..." << endl;
+		cout << "Looking behind you, it looks as though you never left the ghost town..." << endl;
+		cout << "Turning back towards the road ahead you see something shimmering in the distance..." << endl;
+		player.health = (player.health - 10);
+		cout << "You feel the pain once more, this time traveling from your knees to your waist!" << endl;
+		cout << "Your health is now at " << player.health << "." << endl;
+		
+		cout << "" << endl;
+		cout << "After wincing you clear your vision and notice the shimmering shade in the distance is gone... What could it have been?" << endl;
+		cout << "You shake off that sinking feeling in your gut, that fear of the unknown, and continue down the path, this time checking to make sure you're" << endl;
+		cout << " actually making progress. You are." << endl;
+
+		cout << "" << endl;
+		cout << "As the sun sets you arrive in a small village. Once again, something is off..." << endl;
+		cout << "While noone is hostile, noone seems to notice you at all..." << endl;
+		cout << "You wander the town, scouting out opportunites for help." << endl;
+		
+		cout << "" << endl;
+		cout << "You thought the villagers were just wary of outsiders and that was why noone acknowledged you, but there's something else going on." << endl;
+		cout << "Noone will meet your eyes. You stand in front of someone walking your way, blocking their path." << endl;
+		cout << "They do not react. They stand there motionless, eyes on the ground." << endl;
+		cout << "That's when you notice they are muttering something to themselves under their breath. You can't make it out though..." << endl;
+		cout << "Once you see them do this, you look around and notice everyone else is doing the exact same thing..." << endl;
+
+		cout << " " << endl;
+		cout << "As you stopped this villager, all the others stopped moving as well. You move aside and let the man continue on his way" << endl;
+		cout << " and as you do this, as he moves, so do the rest... Creepy" << endl;
+
+		inVillage = true;
+                cout << "You continue looking around..." << endl;
+                while (inVillage && player.health > 0) {
+                    int villageAction;
+                    cout << "1: Investigate the main building in the village" << endl;
+                    cout << "2: Try to snap someone out of their trance" << endl;
+                    cout << "3: Leave the village the way you came, there are no other roads out of this place..." << endl;
+                    cin >> villageAction;
+
+                    switch (villageAction) {
+                        case 1:
+                            cout << "None of the villagers are bothering you. The best place to get some answers is probably the elders house." << endl;
+                            cout << "You walk up to the building in the center of the village square. There's no door and no light coming from inside." << endl;
+                            cout << "It's a bit dark, but that doesn't matter. You are armed and ready for anything!" << endl;
+                            cout << "You enter the building and find two bodies. They have been rotting here for awhile it seems..." << endl;
+                            cout << "There's nothing of interest in here. Maybe you should leave." << endl;
+                            break;
+                        case 2:
+                            if (!enemyDefeatedInVillage) {
+                                Character enemy = createEnemy(10);  // Create a Shade
+                                cout << "You grab a villager, shaking them to pull them out of their trance!" << endl;
+				cout << "Their body rapidly loses tangibility, their physical form melting away into an insidious looking gas..." << endl;
+				cout << "Now before you floats that same shimmering shade you saw earlier on the road!" << endl;
+                                fightLoop(player, enemy);
+                                if (player.health > 0) {
+                                    enemyDefeatedInVillage = true;  // Set the flag if the player defeats the enemy
+                                }
+                            } else {
+                                cout << "Do you know the definition of 'Insanity'?"<< endl;
+				cout << "" << endl;
+				cout << "'Insanity is doing the exact... same fucking thing... over and over again expecting... shit to change...'" << endl;
+				cout << "You better not go looking for trouble again!" << endl;
+                            }
+                            break;
+                        case 3:
+                            cout << "It's about time you leave this accursed place! You retrace your steps back to the road." << endl;
+                            inVillage = false;  // Exit the village loop
+			    inWild = true;
+                            break;
+                        default:
+                            cout << "Your mind wanders, then leaves you completely..." << endl;
+                            cout << "You feel warm and content...?" << endl;
+                            player.health = 0;
+                    }
+                }
+                break;
+          
+	    case 3:  // Rest at bonfire
+		inWild = false;
+		bool atBonfire = true;
+		while (atBonfire && player.health > 0) {
+                	
+			int bonfireAction;
+			cout << "You sit down at the bonfire. It's warm and provides a sense of safety." << endl;
+                	cout << "You decide to rest for a while and regain some health." << endl;
+                	player.health = min(player.health + 50, 100);  // Heal the player
+			cout << "What would you like to do next?" << endl;
+			cout << "1: Rest here for the night" << endl;
+			cout << "2: Get back on the road" << endl;
+			cout << "3: Bide time..." << endl;
+			cin >> bonfireAction;
+
+			switch (bonfireAction) {
+				case 1: 
+					cout << "You decide to take this moment to get a full night's rest. The warmth of the fire" << endl;
+					cout << " is too comforting to let go so soon..." << endl;
+					
+					cout << "" << endl;
+					cout << "Your eyes get heavy, and you give in to the feeling..." << endl;
+					
+					cout << "" << endl;
+					cout << "..." << endl;
+					cout << "...." << endl;
+					cout << "....." << endl;
+					cout << "!!!!" << endl;	
+					cout << "You feel a sharp pain ricochet throughout your entire body!" << endl;
+					player.health = (player.health - 50);	// Penalty for using a long rest RIGHT after waking up for the first time lol
+					cout << "Your health is now " << player.health << endl;
+					cout << "You must have been attacked by a 'Nightmare.'" << endl;
+					cout << "'Nightmares' are dangerous entities that attack when their victims have entered deep sleep in their vicinity..." << endl;
+					cout << "It seems that resting so close to the ghost town may have been a bad idea..." << endl;
+					cout << "Time to get out of here." << endl;
+					atBonfire = false;
+					inWild = true;
+					break;
+				case 2:
+					cout << "It's best to keep moving..." << endl;
+					cout << "You feel motivated!" << endl;
+					player.health = (player.health + 15);	// Reward for bravery, a health boost that is not explicitly announced
+					atBonfire = false;	// Exit the bonfire loop
+					inWild = true;
+					break;
+				
+				case 3:
+					cout << "Unsure how to proceed without a guide, you succumb to your helplessness..." << endl;
+					player.health = 0;
+			}
+
+
+            } 
+        }
+    }
+    
+    char journeyAction1;
+    char hilltopAction;
+//EDIT BELOW SWITCH    
+    while (player.health > 0 && inWild && enemyDefeatedInVillage) {
+        cout << "The sun has set, but you dont feel comfortable stopping in this area." << endl;
+        cout << "It's time to move on..." << endl;
+        cout << "" << endl;
+        cout << "" << endl;
+        cout << "" << endl;
+        
+        
+        cout << "As you travel over the winding hills of this cursed valley you hear a noise in the" << endl;
+        cout << " distance. It sounds like a group of campers having a heated discussion." << endl;
+        cout << "From what you can tell they are trying to remain quiet through this argument." << endl;
+        cout << "How would you like to proceed?" << endl;
+        cout << "" << endl;
+        
+        cout << "1: Ignore the noise, continue on." << endl;
+        cout << "2: Try to find the source of the noise you hear." << endl;
+        cin >> journeyAction1;
+
+        switch (journeyAction1) {
+            case 1: 
+                cout << "You decide it's best to leave whoever, or whatever, is making so much" << endl;
+                cout << " noise at this hour..." << endl;
+                break;
+            
+            case 2:
+                cout << "You decide to investigate the noise..." << endl;
+                cout << "Coming to the top of the closest hill to you, you hear the noise get a little closer." << endl;
+                cout << "From the top of the hill you can see another dense grouping of trees near the bottom of the hill." << endl;
+                cout << "There is a faint glimmer of light poking through the trees." << endl;
+                cout << "There are definitely people in there." << endl;
+                
+                cout << "" << endl;
+                cout << "How should you proceed?" << endl;
+                
+                cout << " " << endl;
+                cout << "1: Decide against it. Carry on." << endl;
+                cout << "2: Make your way down casually." << endl;
+                cout << "3: Slowly approach the treeline, investigate." << endl;
+                cin >> hilltopAction;
+                
+                switch (hilltopAction) {
+                    
+                    case 1: 
+                        cout << "On second thought, who knows what awaits within those trees. Bandits? Thieves? Necromancers?" << endl;
+                        cout << "Best to leave them be." << endl;
+			cout << "It's time to move on, there's no respite for you here." << endl;
+			atHilltop = false;
+			inWild = false;
+			inWild2 = true;
+                        break;
+                        
+                    case 2: 
+                        if (!enemyDefeatedAtHilltop) {
+                                Character enemy = createEnemy(3);  // Create a Chimera
+                                cout << "You head down the hill, not paying attention to the noise you're making." << endl;
+                                cout << "" << endl;
+                                cout << "You approach the treeline and the chatter dies down." << endl;
+                                cout << "Now it is dead quiet, but the light shining within remains..." << endl;
+                                cout << "As you break the treeline, the first step you take, you now see the mistake you made..." << endl;
+                                cout << "" << endl;
+                                cout << "The moment your foot hits the gound past the first treee you are struck hard in the chest, knocking you back!" << endl;
+                                player.health = (player.health - 25);
+                                cout << "Your health is now at " << player.health << "!" << endl;
+                                cout << "Take up arms and defend yourself!" << endl;
+                                fightLoop(player, enemy);
+                                if (player.health > 0) {
+                                    enemyDefeatedAtHilltop = true;  // Set the flag if the player defeats the enemy
+                                }
+				cout << "It's time to move on, there's no respite for you here." << endl;
+				atHilltop = false;
+				inWild = false;
+				inWild2 = true;
+                            }
+
+                        cout << "Excellent work, that was a close one!" << endl;
+                        cout << "Chimeras are rare and very crafty." << endl;
+                        cout << "It seems it lured you in, looking for a meal, by emulating human sounds..." << endl;
+                        cout << "No matter... It is over now." << endl;
+                        cout << "Still no sign of friendly civilization..." << endl;
+                        
+                        cout << " " << endl;
+                        cout << "Is there anyone out there?" << endl;
+			cout << "It's time to move on, there's no respite for you here." << endl;
+			atHilltop = false;
+			inWild = false;
+			inWild2 = true;
+                        break;
+                        
+                    case 3:
+                        if (!enemyDefeatedAtHilltop) {
+                                Character enemy = createEnemy(3);  // Create a Chimera
+                            cout << "Unsure of what lies ahead, you decide to remain cautious..." << endl;
+                            cout << "You make a slow approach to the treeline... The noises you hear get louder and louder as you come closer." << endl;
+                            cout << "The noise sounds less and less like people talking now that you are mere meters away from the treeline..." << endl;
+                            cout << "As you get to the treeline, the noises halt..." << endl;
+                        
+                            cout << "" << endl;
+                            cout << "..." << endl;
+                            cout << "...." << endl;
+                            cout << "....." << endl;
+                        
+                            cout << "" << endl;
+                            cout << "!!!" << endl;
+                            cout << "You feel a sudden rush of ill intent!" << endl;
+                            cout << "You see nothing as the flame beyond the trees dies out..." << endl;
+                            cout << "You are struck by something!" << endl;
+                            player.health = (player.health - 10);
+                            cout << "Your health is now " << player.health << "!" << endl;
+                            
+                            cout << "" << endl;
+                            cout << "Because you were so cautious you were able to pivot at the last second..." << endl;
+                            cout << " saving you from losing your head!" << endl;
+                            cout << "Now towering above you is a massive creature, salivating over it's next meal, YOU!" << endl;
+                        fightLoop(player, enemy);
+                        if (player.health > 0) {
+                                    enemyDefeatedAtHilltop = true;  // Set the flag if the player defeats the enemy
+                        }
+                        cout << "Thanks to your vigilence, your pitiful existence has been extended for another night..." << endl;
+			cout << "It's time to move on, there's no respite for you here." << endl;
+			atHilltop = false;
+			inWild2 = true;
+                        break;  
+                        
+                }
+            
+                
+            
+            }
+        }
+    }
+
+//EDIT BELOW FOR SCENE 3
+	while (inWild2 && player.health > 0) {
+
+
+
+
+	}
+
+    if (player.health <= 0) {
+        cout << "Game Over. You have perished on your journey." << endl;
+    } else {
+        cout << "Your journey continues..." << endl;
+    }
+
+    return 0;
+}
